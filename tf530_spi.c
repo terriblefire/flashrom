@@ -113,8 +113,8 @@ void spi_cs_assert(struct TF530SDRegs* port)
 static const struct spi_master spi_master_tf530 = {
     .type		= SPI_CONTROLLER_TF530,
     .features	= SPI_MASTER_4BA,
-    .max_data_read	= MAX_DATA_UNSPECIFIED, /* TODO? */
-    .max_data_write	= MAX_DATA_UNSPECIFIED, /* TODO? */
+    .max_data_read	= 256,
+    .max_data_write	= 256,
     .command	= tf530_spi_send_command,
     .multicommand	= default_spi_send_multicommand,
     .read		= default_spi_read,
@@ -165,22 +165,20 @@ static int tf530_spi_send_command(struct flashctx *flash, unsigned int writecnt,
 
     spi_cs_assert(port);
 
-    printf("spi_cmd: ", writecnt);
     for (int i = 0; i < writecnt; i++)
     {
         spi_send_byte(port, txbuf[i]);
-        printf("0x%02x ", txbuf[i]);
     }
-    printf("\n");
 
-    printf("spi_recv: ", writecnt);
+    // read the dummy byte and make sure
+    // the compiler doesnt optimize it away
+    uint8_t volatile dummy = spi_recv_byte(port);
+
+
     for (int i = 0; i < readcnt; i++)
     {
         rxbuf[i] = spi_recv_byte(port);
-        printf("0x%02x ", rxbuf[i]);
     }
-
-    printf("\n");
 
     spi_cs_unassert(port);
 
