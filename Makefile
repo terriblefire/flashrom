@@ -20,6 +20,14 @@
 
 PROGRAM = flashrom
 
+CONFIG_ENABLE_LIBUSB0_PROGRAMMERS=no
+CONFIG_ENABLE_LIBUSB1_PROGRAMMERS=no
+CONFIG_ENABLE_LIBPCI_PROGRAMMERS=no
+CONFIG_BUSPIRATE_SPI=no
+CONFIG_SERPROG=no
+CONFIG_PONY_SPI=no
+CONFIG_TF530_SPI=yes
+CC=m68k-amigaos-gcc
 ###############################################################################
 # Defaults for the toolchain.
 
@@ -60,7 +68,7 @@ CONFIG_DEFAULT_PROGRAMMER_ARGS ?= ''
 
 # If your compiler spits out excessive warnings, run make WARNERROR=no
 # You shouldn't have to change this flag.
-WARNERROR ?= yes
+WARNERROR ?= no
 
 ifeq ($(WARNERROR), yes)
 CFLAGS += -Werror
@@ -110,6 +118,7 @@ endif
 # (of course), but should come after any lines setting CC because the line
 # below uses CC itself.
 override TARGET_OS := $(strip $(call debug_shell,$(CC) $(CPPFLAGS) -E os.h 2>/dev/null | grep -v '^\#' | grep '"' | cut -f 2 -d'"'))
+override TARGET_OS := AmigaOS
 
 ifeq ($(TARGET_OS), Darwin)
 override CPPFLAGS += -I/opt/local/include -I/usr/local/include
@@ -136,6 +145,10 @@ override CPPFLAGS += -I/usr/local/include
 override LDFLAGS += -L/usr/local/lib
 endif
 
+ifeq ($(TARGET_OS), AmigaOS)
+override CPPFLAGS += -m68000 -mcrt=clib2 -DIS_AMIGA
+override LDFLAGS += -mcrt=clib2  -lamiga -lm -lunix
+endif
 ifeq ($(TARGET_OS), DOS)
 EXEC_SUFFIX := .exe
 # DJGPP has odd uint*_t definitions which cause lots of format string warnings.
@@ -912,6 +925,12 @@ FEATURE_CFLAGS += $(call debug_shell,grep -q "LINUX_SPI_SUPPORT := yes" .feature
 PROGRAMMER_OBJS += linux_spi.o
 endif
 
+ifeq ($(CONFIG_TF530_SPI), yes)
+# This is a totally ugly hack.
+FEATURE_CFLAGS += -D'CONFIG_TF530_SPI=1'
+PROGRAMMER_OBJS += tf530_spi.o
+endif
+
 ifeq ($(CONFIG_MSTARDDC_SPI), yes)
 # This is a totally ugly hack.
 FEATURE_CFLAGS += $(call debug_shell,grep -q "LINUX_I2C_SUPPORT := yes" .features && printf "%s" "-D'CONFIG_MSTARDDC_SPI=1'")
@@ -1020,7 +1039,7 @@ ifeq ($(ARCH), x86)
 endif
 
 $(PROGRAM)$(EXEC_SUFFIX): $(OBJS)
-	$(CC) $(LDFLAGS) -o $(PROGRAM)$(EXEC_SUFFIX) $(OBJS) $(LIBS) $(PCILIBS) $(FEATURE_LIBS) $(USBLIBS) $(USB1LIBS)
+	$(CC) -o $(PROGRAM)$(EXEC_SUFFIX) $(OBJS) $(LIBS) $(PCILIBS) $(FEATURE_LIBS) $(USBLIBS) $(USB1LIBS) $(LDFLAGS)
 
 libflashrom.a: $(LIBFLASHROM_OBJS)
 	$(AR) rcs $@ $^

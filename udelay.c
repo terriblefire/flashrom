@@ -232,6 +232,8 @@ void internal_sleep(unsigned int usecs)
 #elif defined(__DJGPP__)
 	sleep(usecs / 1000000);
 	usleep(usecs % 1000000);
+#elif IS_AMIGA
+	usleep(usecs % 1000000);
 #else
 	nanosleep(&(struct timespec){usecs / 1000000, (usecs * 1000) % 1000000000UL}, NULL);
 #endif

@@ -101,6 +101,9 @@ enum programmer {
 #if CONFIG_LINUX_SPI == 1
 	PROGRAMMER_LINUX_SPI,
 #endif
+#if CONFIG_TF530_SPI == 1
+	PROGRAMMER_TF530_SPI,
+#endif
 #if CONFIG_USBBLASTER_SPI == 1
 	PROGRAMMER_USBBLASTER_SPI,
 #endif
@@ -532,6 +535,11 @@ int buspirate_spi_init(void);
 int linux_spi_init(void);
 #endif
 
+/* tf530_spi.c */
+#if CONFIG_TF530_SPI == 1
+int tf530_spi_init(void);
+#endif
+
 /* dediprog.c */
 #if CONFIG_DEDIPROG == 1
 int dediprog_init(void);
@@ -591,6 +599,9 @@ enum spi_controller {
 #endif
 #if CONFIG_LINUX_SPI == 1
 	SPI_CONTROLLER_LINUX,
+#endif
+#if CONFIG_TF530_SPI == 1
+	SPI_CONTROLLER_TF530,
 #endif
 #if CONFIG_SERPROG == 1
 	SPI_CONTROLLER_SERPROG,

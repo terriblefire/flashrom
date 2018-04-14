@@ -27,6 +27,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <getopt.h>
+
 #include "flash.h"
 #include "flashchips.h"
 #include "programmer.h"
@@ -93,7 +94,7 @@ static int check_filename(char *filename, char *type)
 	return 0;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
 	const struct flashchip *chip = NULL;
 	/* Probe for up to eight flash chips. */

@@ -69,6 +69,7 @@
 #elif defined (__m68k__)
 	#define __FLASHROM_ARCH__ "m68k"
 	#define IS_M68K 1
+    #define __BIG_ENDIAN__
 #elif defined (__sh__)
 	#define __FLASHROM_ARCH__ "sh"
 	#define IS_SH 1
@@ -158,6 +159,7 @@
 #endif
 
 #endif
+#define __FLASHROM_BIG_ENDIAN__
 
 #if !defined (__FLASHROM_BIG_ENDIAN__) && !defined (__FLASHROM_LITTLE_ENDIAN__)
 #error Unable to determine endianness.
